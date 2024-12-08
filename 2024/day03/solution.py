@@ -1,5 +1,4 @@
 from re import findall
-from time import sleep
 
 class Solution:
     def __init__(self):
