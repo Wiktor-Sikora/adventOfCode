@@ -1,3 +1,5 @@
+from time import time
+
 class Solution:
     def __init__(self):
         self.get_data()
@@ -16,23 +18,66 @@ class Solution:
         pointer = 0
         end = len(self.data) - 3
         row_length = len(self.data[0])
-
         while pointer < end:
             for column_index in range(row_length):
-                if self.data[pointer][column_index] != 'X' and self.data[pointer][column_index] != 'S':
-                    continue
-
-                current_word = self.data[pointer][column_index] + self.data[pointer + 1][column_index] + self.data[pointer + 2][column_index] + self.data[pointer + 3][column_index]
-                if current_word == 'XMAS' or current_word == 'SAMX':
-                    answer += 1
+                if self.data[pointer][column_index] == 'X':
+                    if self.data[pointer + 1][column_index] != 'M':
+                        continue
+                    if self.data[pointer + 2][column_index] != 'A':
+                        continue
+                    if self.data[pointer + 3][column_index] == 'S':
+                        answer += 1    
+                elif self.data[pointer][column_index] == 'S':
+                    if self.data[pointer + 1][column_index] != 'A':
+                        continue
+                    if self.data[pointer + 2][column_index] != 'M':
+                        continue
+                    if self.data[pointer + 3][column_index] == 'X':
+                        answer += 1    
 
             pointer += 1
-
         return answer
 
     def _diagonal_search(self):
         answer = 0
-        # too tired today
+        pointer = 0
+        end = len(self.data) - 3
+        row_length_right = len(self.data[0]) - 3
+        row_length_left = len(self.data[0])
+        while pointer < end:
+            # searching for \
+            for column_index in range(row_length_right):
+                if self.data[pointer][column_index] == 'X':
+                    if self.data[pointer + 1][column_index + 1] != 'M':
+                        continue
+                    if self.data[pointer + 2][column_index + 2] != 'A':
+                        continue
+                    if self.data[pointer + 3][column_index + 3] == 'S':
+                        answer += 1    
+                elif self.data[pointer][column_index] == 'S':
+                    if self.data[pointer + 1][column_index + 1] != 'A':
+                        continue
+                    if self.data[pointer + 2][column_index + 2] != 'M':
+                        continue
+                    if self.data[pointer + 3][column_index + 3] == 'X':
+                        answer += 1
+            # searching for /
+            for column_index in range(3, row_length_left):
+                if self.data[pointer][column_index] == 'X':
+                    if self.data[pointer + 1][column_index - 1] != 'M':
+                        continue
+                    if self.data[pointer + 2][column_index - 2] != 'A':
+                        continue
+                    if self.data[pointer + 3][column_index - 3] == 'S':
+                        answer += 1    
+                elif self.data[pointer][column_index] == 'S':
+                    if self.data[pointer + 1][column_index - 1] != 'A':
+                        continue
+                    if self.data[pointer + 2][column_index - 2] != 'M':
+                        continue
+                    if self.data[pointer + 3][column_index - 3] == 'X':
+                        answer += 1
+            pointer += 1
         return answer
 
     def puzzle_one(self):
