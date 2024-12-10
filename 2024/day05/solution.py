@@ -42,7 +42,15 @@ class Solution:
         return sum([line[len(line) // 2] for line in self.pages if self._is_line_valid(line)])
 
     def _correct_ordering(self, line):
-        pass
+        for index, number in enumerate(line):
+            for rule in self.rules[self.counted_rules[number][0]:self.counted_rules[number][1]]:
+                second_number_index = self._get_index(rule[1], line)
+                if not second_number_index:
+                    continue
+                
+                elif index > second_number_index:
+                    return False
+        return True
 
     def puzzle_two(self):
         self.get_data()
