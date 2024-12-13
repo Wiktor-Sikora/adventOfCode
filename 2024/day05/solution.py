@@ -8,62 +8,81 @@ class Solution:
             self.rules = [tuple(map(int, line.rstrip().split('|'))) for line in lines[:lines.index('\n')]]
             self.pages = [list(map(int, line.rstrip().split(','))) for line in lines[lines.index('\n') + 1:]]
 
-    def _get_counted_rules(self):
-        counted_rules = [None for _ in range(0, 100)]
+    def _binary_check_if_rule_exists(self, value_1:int, value_2:int):
+        value_to_search = int(f'{value_1}{value_2}') 
+        start = 0
+        end = len(self.rules) - 1
+        middle = 0
+        while start <= end:
+            middle = (start + end) // 2
+            
+            if int(f'{self.rules[middle][0]}{self.rules[middle][1]}') < value_to_search:
+                start = middle + 1
+            
+            elif int(f'{self.rules[middle][0]}{self.rules[middle][1]}') > value_to_search:
+                end = middle - 1 
+            
+            else:
+                return True
+        
+        return False 
 
-        first_index = 0
-        for rule_index in range(1, len(self.rules)):
-            if self.rules[rule_index][0] != self.rules[rule_index - 1][0]:
-                counted_rules[self.rules[rule_index - 1][0]] = (first_index, rule_index - 1)
-                first_index = rule_index
-        return counted_rules
+    def _get_rules_for_case(self, line:list):
+        rules_for_case = []
+        for number_1 in line:
+            for number_2 in line:
+                if self._binary_check_if_rule_exists(number_1, number_2):
+                    rules_for_case.append((number_1, number_2))
 
-    def _get_index(self, value:int, iterable:list):
-        for index in range(len(iterable) - 1):
-            if iterable[index] == value:
-                return index
-        else:
-            return False
+        return rules_for_case
 
-    def _is_line_valid(self, line:list):
-        for index, number in enumerate(line):
-            for rule in self.rules[self.counted_rules[number][0]:self.counted_rules[number][1]]:
-                second_number_index = self._get_index(rule[1], line)
-                if not second_number_index:
-                    continue
-                elif index > second_number_index:
-                    return False
+    def _is_line_valid(self, line:list, rules_for_case:list):
+        for rule in rules_for_case:
+            first_number_index = line.index(rule[0])
+            second_number_index = line.index(rule[1])
+
+            if first_number_index > second_number_index:
+                return False
         return True
 
     def puzzle_one(self):
         self.get_data()
-        self.counted_rules = self._get_counted_rules()
-
-        return sum([line[len(line) // 2] for line in self.pages if self._is_line_valid(line)])
-
-    def _correct_ordering(self, line):
-        for index, number in enumerate(line):
-            for rule in self.rules[self.counted_rules[number][0]:self.counted_rules[number][1]]:
-                second_number_index = self._get_index(rule[1], line)
-                if not second_number_index:
-                    continue
-                
-                elif index > second_number_index:
-                    return False
-        return True
-
-    def puzzle_two(self):
-        self.get_data()
-        self.counted_rules = self._get_counted_rules
+        self.rules.sort(key=lambda rule: int(str(rule[0]) + str(rule[1])))
         answer = 0
 
         for line in self.pages:
-            if self._is_line_valid(line):
+            current_rules = self._get_rules_for_case(line)
+            if self._is_line_valid(line, current_rules):
+                answer += line[len(line) // 2]
+        
+        return answer
+
+    def puzzle_two(self):
+        self.get_data()
+        self.rules.sort(key=lambda rule: int(str(rule[0]) + str(rule[1])))
+        answer = 0
+        
+        for line in self.pages:
+            current_rules = self._get_rules_for_case(line)
+
+            if self._is_line_valid(line, current_rules):
                 continue
-            
-            line = self._correct_ordering(line)
-            
+
+            changed = True
+            while changed:
+                changed = False
+
+                for rule in current_rules:
+                    first_number_index = line.index(rule[0])
+                    second_number_index = line.index(rule[1])
+
+                    if first_number_index > second_number_index:
+                        changed = True
+                        line.pop(first_number_index)
+                        line.insert(second_number_index, rule[0])
+
             answer += line[len(line) // 2]
+        return answer
 
 if __name__ == '__main__':
     solution = Solution()
