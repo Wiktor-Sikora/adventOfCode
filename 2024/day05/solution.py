@@ -68,18 +68,13 @@ class Solution:
             if self._is_line_valid(line, current_rules):
                 continue
 
-            changed = True
-            while changed:
-                changed = False
+            for rule in current_rules:
+                first_number_index = line.index(rule[0])
+                second_number_index = line.index(rule[1])
 
-                for rule in current_rules:
-                    first_number_index = line.index(rule[0])
-                    second_number_index = line.index(rule[1])
-
-                    if first_number_index > second_number_index:
-                        changed = True
-                        line.pop(first_number_index)
-                        line.insert(second_number_index, rule[0])
+                if first_number_index > second_number_index:
+                    line.pop(first_number_index)
+                    line.insert(second_number_index, rule[0])
 
             answer += line[len(line) // 2]
         return answer
