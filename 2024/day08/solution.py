@@ -28,30 +28,23 @@ class Solution:
             return False
     
     def _is_close(self, y1, y2, x1, x2):
-        if abs(y1-y2) == 1 and abs(x1-x2) == 1:
+        if sqrt((y1-y2)**2 + abs(x1-x2)**2) == 1:
             return True
         else:
             return False
         
-    def _get_antinode(self, y1, x1, y2, x2):
-        distance_y = abs(y1 - y2)
-        distance_x = abs(x1 - x2)
-
-        antinodes = [[y1, x1]]
+    def _get_antinode(self, y1, y2, x1, x2):
+        antinode = [y1, x1]
         if y1 > y2:
-            antinodes[0][0] = y1 + distance_y
-            antinodes[1][0] = y2 - distance_y
-        elif y2 > y1:
-            antinodes[0][0] = y2 + distance_y
-            antinodes[1][0] = y1 - distance_y
+            antinode[0] = y1 + abs(y1 - y2)
+        elif y1 < y2:
+            antinode[0] = y1 - abs(y1 - y2)
         if x1 > x2:
-            antinodes[0][1] = x1 + distance_x
-            antinodes[1][1] = x2 - distance_x
-        elif x2 > x1:
-            antinodes[0][1] = x2 + distance_x
-            antinodes[1][1] = x1 - distance_x
+            antinode[1] = x1 + abs(x1 - x2)
+        elif x1 < x2:
+            antinode[1] = x1 - abs(x1 - x2)
 
-        return [tuple(antinode) for antinode in antinodes]
+        return tuple(antinode)
 
     def _display_map(self, antinodes):
         for antinode in antinodes:
@@ -61,8 +54,6 @@ class Solution:
             print(line)
 
     def puzzle_one(self):
-        self.get_data('example.txt')
-
         self.ascii_all = ascii_letters + digits
         self.bound_y = len(self.data) - 1
         self.bound_x = len(self.data[0]) - 1
@@ -81,15 +72,63 @@ class Solution:
                         continue
 
                     antinode = self._get_antinode(first_antenna[0], second_antenna[0], first_antenna[1], second_antenna[1])
+                    
                     if self._is_in_bounds(antinode[0], antinode[1]):
-                        antinode.append((antinode))
-        print(set(antinodes))
-        self._display_map(antinodes)
+                        antinodes.append(antinode)
+
         return len(set(antinodes))
+
+    def _get_antinodes_in_line(self, y1, y2, x1, x2):
+        if y1 > y2:
+            current_y = y1
+            distance_y = abs(y1-y2)
+        else:
+            current_y = y2
+            distance_y = -abs(y1-y2)
+        if x1 > x2:
+            current_x = x1
+            distance_x = abs(x1-x2)
+        else:
+            current_x = x2
+            distance_x = -abs(x1-x2)
+
+        n = 1
+        antinodes = []
+        while True:
+            antinode = (current_y + distance_y * n, current_x + distance_x * n)
+            if self._is_in_bounds(antinode[0], antinode[1]):
+                antinodes.append(antinode)
+                n += 1
+            else:
+                break
+
+        return antinodes
 
 
     def puzzle_two(self):
-        pass
+        self.get_data('example.txt')
+        self.ascii_all = ascii_letters + digits
+        self.bound_y = len(self.data) - 1
+        self.bound_x = len(self.data[0]) - 1
+        
+        antinodes = []
+
+        for antenanna_letter in self.ascii_all:
+            antenannas_positions = self._get_position_of_antennas(antenanna_letter)
+
+            if len(antenannas_positions) < 2:
+                continue
+
+            for first_antenna_index, first_antenna in enumerate(antenannas_positions):
+                for second_antenna in antenannas_positions[:first_antenna_index] + antenannas_positions[first_antenna_index + 1:]:
+                    if self._is_close(first_antenna[0], second_antenna[0], first_antenna[1], second_antenna[1]):
+                        continue
+
+                    antinodes.extend(self._get_antinodes_in_line(first_antenna[0], second_antenna[0], first_antenna[1], second_antenna[1]))
+
+        self._display_map(antinodes)
+
+        return len(set(antinodes))
 
 if __name__ == '__main__':
     solution = Solution()
