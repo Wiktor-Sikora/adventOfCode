@@ -28,7 +28,7 @@ class Solution:
             return False
     
     def _is_close(self, y1, y2, x1, x2):
-        if sqrt((y1-y2)**2 + abs(x1-x2)**2) == 1:
+        if abs(y1-y2) + abs(x1-x2) == 1:
             return True
         else:
             return False
@@ -80,22 +80,18 @@ class Solution:
 
     def _get_antinodes_in_line(self, y1, y2, x1, x2):
         if y1 > y2:
-            current_y = y1
             distance_y = abs(y1-y2)
         else:
-            current_y = y2
             distance_y = -abs(y1-y2)
         if x1 > x2:
-            current_x = x1
             distance_x = abs(x1-x2)
         else:
-            current_x = x2
             distance_x = -abs(x1-x2)
 
         n = 1
         antinodes = []
         while True:
-            antinode = (current_y + distance_y * n, current_x + distance_x * n)
+            antinode = (y2 + distance_y * n, x2 + distance_x * n)
             if self._is_in_bounds(antinode[0], antinode[1]):
                 antinodes.append(antinode)
                 n += 1
@@ -106,7 +102,7 @@ class Solution:
 
 
     def puzzle_two(self):
-        self.get_data('example.txt')
+        self.get_data('input.txt')
         self.ascii_all = ascii_letters + digits
         self.bound_y = len(self.data) - 1
         self.bound_x = len(self.data[0]) - 1
@@ -125,8 +121,6 @@ class Solution:
                         continue
 
                     antinodes.extend(self._get_antinodes_in_line(first_antenna[0], second_antenna[0], first_antenna[1], second_antenna[1]))
-
-        self._display_map(antinodes)
 
         return len(set(antinodes))
 
